@@ -1,0 +1,8 @@
+transformers
+safetensors --only-binary=:all:
+numpy
+pillow
+scikit-learn
+torch
+torchvision
+faiss-cpu
