@@ -7,7 +7,7 @@ import hashlib
 url = "http://vision.stanford.edu/aditya86/ImageNetDogs/images.tar"
 output_file = "images.tar"
 
-def compute_md5(file_path):
+def compute_md5(file_path): # tính "dấu vân tay" của file
     """Compute MD5 checksum of a file."""
     md5 = hashlib.md5()
     with open(file_path, "rb") as f:
@@ -16,9 +16,9 @@ def compute_md5(file_path):
     return md5.hexdigest()
 
 # Download the file with progress display
-def download_dataset():
+def download_dataset(): # ghi toàn bộ dữ liệu từ URL của dataset vào file
     print("Downloading dataset...")
-    response = requests.get(url, stream=True)
+    response = requests.get(url, stream=True) # send GET request to URL, stream = True : tải dữ liệu theo từng đoạn
     total_size = int(response.headers.get('Content-Length', 0))  # Total file size in bytes
     block_size = 1024  # Chunk size
     progress = 0
@@ -26,14 +26,13 @@ def download_dataset():
     with open(output_file, "wb") as file:
         for data in response.iter_content(block_size):
             progress += len(data)
-            file.write(data)
+            file.write(data) # write data into output_file
             percent = (progress / total_size) * 100
             print(f"\rProgress: {percent:.2f}%", end="")  # Print progress in the same line
 
     print("\nDownload complete.")
 
-# Verify the integrity of the file (if checksum is known)
-def verify():
+def verify(): # check md5
     expected_md5 = "1bb1f2a596ae7057f99d7d75860002ef" 
     downloaded_md5 = compute_md5(output_file)
     if downloaded_md5 == expected_md5:
@@ -44,7 +43,7 @@ def verify():
 # Extract the tar file
 def extract():
     print("Extracting dataset...")
-    if tarfile.is_tarfile(output_file):
+    if tarfile.is_tarfile(output_file): # check xem có phải là filetar hay không
         with tarfile.open(output_file) as tar:
             tar.extractall(path="./images")  # Extract to 'images' directory
             print("Extraction complete.")
@@ -60,4 +59,3 @@ def main():
         extract()
 if __name__ == '__main__':
     main()
-

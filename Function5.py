@@ -1,22 +1,26 @@
 import numpy as np
-from sklearn.metrics.pairwise import cosine_similarity
+import faiss
 
-def find_closest_vectors(query_vector, database_vectors, top_k=5):
-    # Calculate cosine similarity between the query vector and database vectors
-    similarities = cosine_similarity([query_vector], database_vectors)[0]
-    print(similarities)
+def retrieve_closest_vectors(index, query_vector: np.ndarray, top_k: int = 5):
+    """
+    Tìm kiếm top-k vector gần nhất trong index FAISS.
+
+    Args:
+        index: FAISS index đã được khởi tạo và thêm vector.
+        query_vector: Vector truy vấn (embedding) với kích thước (1, dimension).
+        top_k: Số lượng vector gần nhất cần tìm (default = 5).
+
+    Returns:
+        List chứa ID của top-k vector gần nhất trong index.
+    """
+    # Đảm bảo query_vector có đúng định dạng numpy array (dạng float32)
+    if not isinstance(query_vector, np.ndarray):
+        query_vector = np.array(query_vector, dtype=np.float32)
+    if query_vector.ndim == 1:
+        query_vector = query_vector.reshape(1, -1)
+
+    # Tìm kiếm trong FAISS
+    distances, indices = index.search(query_vector, top_k)
     
-    # Get the indices of the top_k closest vectors
-    closest_indices = np.argsort(similarities)[-top_k:][::-1]
-    
-    return closest_indices.tolist()
-
-# Example Usage:
-# Let's assume `database_vectors` is a list of vectors stored in your database
-# And `query_vector` is the vector you want to find the nearest neighbors for
-
-database_vectors = np.random.rand(10, 128)  # Example database with 10 vectors of 128 dimensions
-query_vector = np.random.rand(128)          # Example query vector of 128 dimensions
-
-closest_ids = find_closest_vectors(query_vector, database_vectors)
-print("IDs of the 5 closest vectors:", closest_ids)
+    # Trả về danh sách các ID của vector gần nhất
+    return indices[0].tolist(), distances[0].tolist()

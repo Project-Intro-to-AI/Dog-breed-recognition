@@ -4,6 +4,7 @@ import faiss  # FAISS cần được cài đặt cho lưu trữ và tìm kiếm 
 import numpy as np
 import torch
 
+
 def initialize_index(dimension: int, search_method: str = "flat"):
     if search_method == "hnsw":
         index = faiss.IndexHNSWFlat(dimension, 32)  # HNSW với 32 kết nối
@@ -26,10 +27,12 @@ def add_embeddings_to_index(index, embeddings_with_ids: List[Tuple[int, torch.Te
         print("Error: Some embeddings were not added.")
 
 
-# Example usage
-dimension = 512  # Đối với CLIP, kích thước của embedding thường là 512
-index = initialize_index(dimension, search_method="hnsw")
-add_embeddings_to_index(index, embeddings_with_ids)
 
-print(f"Total embeddings in index: {index.ntotal}")
+
+# # Example usage
+# dimension = 512  # Đối với CLIP, kích thước của embedding thường là 512
+# index = initialize_index(dimension, search_method="hnsw")
+# add_embeddings_to_index(index, embeddings_with_ids)
+
+# print(f"Total embeddings in index: {index.ntotal}")
 
