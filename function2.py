@@ -35,7 +35,7 @@ class DogDataset(Dataset):
             self.X.extend(os.path.join(dirname,filename)for filename in filenames)
             self.y.extend([current_class]*len(filenames))
             current_class += 1
-        if one_hot:
+        if one_hot:#120 class y[i]=3 -> [0,0,0,1, ...0]
             for _ in range(len(self.y)):
                 tmp = [0]*self.num_class
                 tmp[self.y[_]] = 1
@@ -54,5 +54,6 @@ if __name__=='__main__':
     dataset = DogDataset(Image_folder,one_hot=0)
     print(dataset.class_names)
     train_set, test_set = dataset.get_splits()
+    print(train_set)
     train_loader = DataLoader(train_set,batch_size=BATCH_SIZE,shuffle=True)
     test_loader = DataLoader(test_set,batch_size=BATCH_SIZE,shuffle=True)
