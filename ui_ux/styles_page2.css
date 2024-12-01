@@ -1,0 +1,60 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    font-family: Arial, sans-serif;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.picture-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('assets/background_page2.png'); /* Đường dẫn tới ảnh */
+    background-size: cover; /* Ảnh bao phủ toàn màn hình */
+    background-repeat: no-repeat; /* Không lặp lại */
+    background-position: center; /* Ảnh căn giữa */
+    z-index: -1; /* Đặt ảnh dưới nội dung */
+}
+
+.container {
+    background: rgba(0, 0, 0, 0.6);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 90%;
+    max-width: 400px;
+}
+
+input, button {
+    width: 90%;
+    margin: 10px 0;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+button {
+    background-color: #ff914d;
+    color: white;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background-color: #ff5722;
+}
+
+img {
+    max-width: 100%;
+    border-radius: 10px;
+    margin: 10px 0;
+}
