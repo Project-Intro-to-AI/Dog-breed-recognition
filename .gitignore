@@ -1,1 +1,6 @@
 /images/
+images.tar
+embeddings.csv
+faiss_index.bin
+/__pycache__/
+/ui_ux/background.pptx/

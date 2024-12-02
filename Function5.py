@@ -4,12 +4,10 @@ import faiss
 def retrieve_closest_vectors(index, query_vector: np.ndarray, top_k: int = 5):
     """
     Tìm kiếm top-k vector gần nhất trong index FAISS.
-
     Args:
         index: FAISS index đã được khởi tạo và thêm vector.
         query_vector: Vector truy vấn (embedding) với kích thước (1, dimension).
         top_k: Số lượng vector gần nhất cần tìm (default = 5).
-
     Returns:
         List chứa ID của top-k vector gần nhất trong index.
     """
@@ -21,6 +19,6 @@ def retrieve_closest_vectors(index, query_vector: np.ndarray, top_k: int = 5):
 
     # Tìm kiếm trong FAISS
     distances, indices = index.search(query_vector, top_k)
-    
+
     # Trả về danh sách các ID của vector gần nhất
     return indices[0].tolist(), distances[0].tolist()

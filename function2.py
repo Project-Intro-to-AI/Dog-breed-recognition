@@ -26,16 +26,6 @@ class DogDataset(Dataset):
         self.y = torch.tensor(self.y,dtype= torch.int64) #CrossEntropyLoss require labels in type long
     def __len__(self):
         return len(self.X)
-    # def __getitem__(self,idx):
-    #     img = cv2.imread(self.X[idx])
-    #     img = cv2.cvtColor(img,cv2.COLOR_BGR2RGB)
-    #     img = cv2.resize(img,SHAPE)
-    #     img = Image.fromarray(img) 
-    #     if self.transform:
-    #         img = self.transform(img)
-    #     else:
-    #         img = torch.tensor(np.array(img), dtype=torch.float32).permute(2, 0, 1) / 255.0
-    #     return [img,self.y[idx]]
     def __getitem__(self, index):
         return [self.X[index],self.y[index]]
     def get_splits(self, test_ratio=0.1, eval_ratio=0.2):

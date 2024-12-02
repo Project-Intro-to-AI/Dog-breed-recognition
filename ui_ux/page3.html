@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dog Breed Identification</title>
+    <link rel="stylesheet" href="styles_page3.css">
+</head>
+<body>
+    <div class="picture-background"></div> <!-- Hình nền từ styles_page3.css -->
+    <div class="container">
+        <div class="upload-section">
+            <h1>Upload a Dog Image</h1>
+            <input type="file" id="dogImageInput" accept="image/*">
+            <button id="submitBtn">Search</button>
+            <p id="upload-status">Waiting for upload...</p>
+        </div>
+
+        <div class="results">
+            <h2 id="results-header" style="display: none;">Similar Images</h2>
+            <div class="related-images" id="related-images"></div>
+        </div>
+    </div>
+
+    <script>
+        // API endpoint
+        const API_URL = "http://127.0.0.1:8000/search/";
+
+        const uploadButton = document.getElementById("submitBtn");
+        const imageInput = document.getElementById("dogImageInput");
+        const uploadStatus = document.getElementById("upload-status");
+        const relatedImagesContainer = document.getElementById("related-images");
+        const resultsHeader = document.getElementById("results-header");
+
+        uploadButton.addEventListener("click", async () => {
+            const file = imageInput.files[0];
+            if (!file) {
+                uploadStatus.textContent = "Please select an image to upload.";
+                return;
+            }
+
+            uploadStatus.textContent = "Uploading and searching for similar images...";
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                // Upload the image to the backend
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    body: formData,
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to process the image.");
+                }
+
+                const data = await response.json();
+                console.log("Response from API:", data);
+                const results = data.results;
+
+                // Clear previous results
+                relatedImagesContainer.innerHTML = "";
+                resultsHeader.style.display = "block";
+
+                // Display similar images with breed names
+                results.forEach((result) => {
+                    const resultContainer = document.createElement("div");
+                    resultContainer.classList.add("result-item");
+
+                    const img = document.createElement("img");
+                    img.src = result.image_path; // Image path from the API
+                    img.alt = `Similarity Score: ${result.distance}`;
+
+                    const breedName = document.createElemenAt("p");
+                    breedName.textContent = `Breed: ${result.breed_name || "Unknown"}`; // Breed name from API
+                    breedName.classList.add("breed-name");
+
+                    resultContainer.appendChild(img);
+                    resultContainer.appendChild(breedName);
+                    relatedImagesContainer.appendChild(resultContainer);
+                });
+
+                uploadStatus.textContent = "Search complete!";
+            } catch (error) {
+                console.error("Error:", error);
+                uploadStatus.textContent = "An error occurred. Please try again.";
+            }
+        });
+    </script>
+</body>
+</html>
