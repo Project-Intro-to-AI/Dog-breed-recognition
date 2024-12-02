@@ -9,28 +9,40 @@
 <body>
     <div class="picture-background"></div> <!-- Hình nền từ styles_page3.css -->
     <div class="container">
+        <!-- Phase1: Upload-section -->
         <div class="upload-section">
             <h1>Upload a Dog Image</h1>
             <input type="file" id="dogImageInput" accept="image/*">
             <button id="submitBtn">Search</button>
             <p id="upload-status">Waiting for upload...</p>
         </div>
-
-        <div class="results">
-            <h2 id="results-header" style="display: none;">Similar Images</h2>
-            <div class="related-images" id="related-images"></div>
+        <!-- Phase2: Result-->
+        <div class="results" id="results-section" style="display: none;">
+            <h2 id="dog-breed-name">Breed Name Here</h2>
+            <div class="breed-images">
+                <h3>Images</h3>
+                <div class="images-grid" id="breed-images-grid"></div>
+            </div>
+            <div class="breed-info">
+                <h3>Information</h3>
+                <p id="breed-info-description">Breed information will appear here.</p>
+            </div>
         </div>
     </div>
+
 
     <script>
         // Đường dẫn API
         const API_URL = "http://127.0.0.1:8000/search/";
 
+        const uploadSection = document.getElementById("upload-section");
+        const resultsSection = document.getElementById("results-section");
         const uploadButton = document.getElementById("submitBtn");
         const imageInput = document.getElementById("dogImageInput");
         const uploadStatus = document.getElementById("upload-status");
-        const relatedImagesContainer = document.getElementById("related-images");
-        const resultsHeader = document.getElementById("results-header");
+        const breedName = document.getElementById("dog-breed-name");
+        const imagesGrid = document.getElementById("breed-images-grid");
+        const breedInfo = document.getElementById("breed-info-description");
 
         uploadButton.addEventListener("click", async () => {
             const file = imageInput.files[0];
@@ -55,22 +67,21 @@
                 }
 
                 const data = await response.json();
-                console.log("Response from API:", data);
-                const results = data.results;
 
-                // Xóa kết quả trước đó
-                relatedImagesContainer.innerHTML = "";
-                resultsHeader.style.display = "block";
-
-                // Hiển thị ảnh tương tự
-                results.forEach((result) => {
+                // Cập nhật giao diện với kết quả
+                breedName.textContent = data.breed_name || "Unknown Breed";
+                imagesGrid.innerHTML = "";
+                (data.images || []).forEach((imgSrc) => {
                     const img = document.createElement("img");
-                    img.src = result.image_path; // Đường dẫn ảnh từ API
-                    img.alt = `Similarity Score: ${result.distance}`;
-                    relatedImagesContainer.appendChild(img);
+                    img.src = imgSrc;
+                    img.alt = data.breed_name;
+                    imagesGrid.appendChild(img);
                 });
+                breedInfo.textContent = data.breed_info || "No information available.";
 
-                uploadStatus.textContent = "Search complete!";
+                // Chuyển sang màn hình kết quả
+                uploadSection.style.display = "none";
+                resultsSection.style.display = "block";
             } catch (error) {
                 console.error("Error:", error);
                 uploadStatus.textContent = "An error occurred. Please try again.";
