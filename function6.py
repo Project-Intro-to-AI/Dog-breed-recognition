@@ -1,5 +1,18 @@
 from collections import Counter
 
+def get_breed_names_from_ids(ids, id_to_breed):
+    """
+    Ánh xạ danh sách ID sang danh sách tên giống chó.
+    
+    Args:
+        ids (list of int): Danh sách ID.
+        id_to_breed (dict): Dictionary ánh xạ ID sang tên giống chó.
+        
+    Returns:
+        list of str: Danh sách tên giống chó.
+    """
+    return [id_to_breed.get(img_id, "Unknown") for img_id in ids]
+
 def get_most_common_breed(breed_list):
     """
     Xác định giống chó xuất hiện nhiều nhất trong danh sách.
