@@ -38,16 +38,19 @@ def save_index(index, file_path="faiss_index.bin"):
         index: FAISS index đã khởi tạo.
         file_path (str): Đường dẫn file để lưu FAISS index.
     """
+    print("Number of vectors in FAISSssssssssssssssssssssssss index:", index.ntotal)
+
     # Nếu index nằm trên GPU, chuyển về CPU
     if isinstance(index, faiss.IndexPreTransform) or hasattr(index, "to_cpu"):
         index = faiss.index_gpu_to_cpu(index)
-    
+    print("Number of vectors in FAISSssssssssssssssssssssssss index:", index.ntotal)
+
     # Lưu index
     faiss.write_index(index, file_path)
     print(f"Index saved to {file_path}")
 
 
-def load_index(file_path: str, use_gpu: bool = True):
+def load_index(file_path: str, use_gpu: bool = False):
     """
     Tải FAISS index từ file.
 
@@ -63,6 +66,7 @@ def load_index(file_path: str, use_gpu: bool = True):
         res = faiss.StandardGpuResources()
         index = faiss.index_cpu_to_gpu(res, 0, index)
     print(f"Index loaded from {file_path}")
+    print("Number of vectors in FAISS index after loading:", index.ntotal)
     return index
 
 def add_embeddings_to_index(index, embeddings_with_ids: List[Tuple[int, torch.Tensor]],index_file = "faiss_index.bin", use_gpu = False):
@@ -101,6 +105,8 @@ def add_embeddings_to_index(index, embeddings_with_ids: List[Tuple[int, torch.Te
     if os.path.exists(index_file):
         print(f"File {index_file} đã tồn tại. Tiến hành tải FAISS index...")
         index = load_index(index_file, use_gpu)
+        print("Number of vectors in FAISS index after loadinguuuuuuuuuuuuuuuuuu:", index.ntotal)
+
         return index
     
     print(f"File {index_file} không tồn tại. Tiến hành tạo FAISS index...")
