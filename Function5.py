@@ -21,6 +21,8 @@ def retrieve_closest_vectors(index, query_vector: np.ndarray, top_k: int = 5):
 
     # Tìm kiếm trong FAISS
     distances, indices = index.search(query_vector, top_k)
+
+    
     
     # Trả về danh sách các ID của vector gần nhất
     return indices[0].tolist(), distances[0].tolist()
