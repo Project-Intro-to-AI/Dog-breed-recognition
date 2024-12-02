@@ -47,6 +47,7 @@ body {
 
 .upload-section button:hover {
     background-color: #45a049;
+
 }
 
 /* Results Section */
@@ -57,6 +58,7 @@ body {
 .breed-images {
     margin-top: 20px;
 }
+
 
 .images-grid {
     display: flex;
@@ -74,4 +76,6 @@ body {
 .breed-info {
     margin-top: 20px;
     text-align: left;
+
 }
+

@@ -11,6 +11,7 @@ import function4  # Function to add embeddings to database
 import Function5  # Function to retrieve vectors from database
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
+
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
@@ -50,7 +51,7 @@ def call_api():
 # Preprocess: Download dataset, initialize CLIP model, and prepare embeddings
 url = "http://vision.stanford.edu/aditya86/ImageNetDogs/images.tar"
 output_file = "images.tar"
-function1.main()  # Download dataset
+# function1.main()  # Download dataset
 model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 device = "cuda" if torch.cuda.is_available() else "cpu"
