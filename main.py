@@ -106,6 +106,41 @@ print("Number of vectors in FAISS index:", index.ntotal)
 BASE_URL = "http://127.0.0.1:8000"  # Base URL of your server
 
 @app.post("/search/")
+# async def search_image(file: UploadFile = File(...), top_k: int = 5):
+#     """
+#     Endpoint to search for similar images based on the uploaded image.
+#     """
+#     try:
+#         # Validate the uploaded file
+#         if not file.content_type.startswith("image/"):
+#             raise HTTPException(status_code=400, detail="Uploaded file is not an image.")
+
+#         # Read and process the image
+#         image = Image.open(file.file).convert("RGB")  # Ensure RGB mode
+#         inputs = processor(images=image, return_tensors="pt").to(device)
+
+#         # Get query vector (embedding) for the uploaded image
+#         with torch.no_grad():
+#             query_vector = model.get_image_features(**inputs).cpu().numpy().flatten()
+
+#         # Retrieve similar images
+#         results, distances = Function5.retrieve_closest_vectors(index, query_vector, top_k=top_k)
+#         print(f"result:{results}")
+#         # Prepare response with web-accessible image paths and distances
+#         similar_images = []
+#         for result, distance in zip(results, distances):
+#             relative_path = os.path.relpath(dataset.X[result], "images")  # Get relative path
+#             image_path = f"{BASE_URL}/images/{relative_path.replace(os.sep, '/')}"  # Construct absolute URL
+#             similar_images.append({"image_path": image_path, "distance": distance})
+#         print(similar_images)
+#         return {"results": similar_images}
+#     except Exception as e:
+#         print(f"Error occurred: {str(e)}")  # Log detailed error to console
+#         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+
+
+# [{'image_path': 'http://127.0.0.1:8000/images/Images/n02085620-Chihuahua/n02085620_5093.jpg', 'distance': 46.452884674072266}, {'image_path': 'http://127.0.0.1:8000/images/Images/n02085620-Chihuahua/n02085620_326.jpg', 'distance': 53.2888298034668}, {'image_path': 'http://127.0.0.1:8000/images/Images/n02085620-Chihuahua/n02085620_1152.jpg', 'distance': 53.431243896484375}, {'image_path': 'http://127.0.0.1:8000/images/Images/n02085620-Chihuahua/n02085620_5093.jpg', 'distance': 54.250972747802734}, {'image_path': 'http://127.0.0.1:8000/images/Images/n02085620-Chihuahua/n02085620_5093.jpg', 'distance': 54.29110336303711}]
+@app.post("/search/")
 async def search_image(file: UploadFile = File(...), top_k: int = 5):
     """
     Endpoint to search for similar images based on the uploaded image.
@@ -124,18 +159,27 @@ async def search_image(file: UploadFile = File(...), top_k: int = 5):
             query_vector = model.get_image_features(**inputs).cpu().numpy().flatten()
 
         # Retrieve similar images
-        results, distances = Function5.retrieve_closest_vectors(index, query_vector, top_k=top_k)
+        results, distances = Function5.retrieve_closest_vectors(index, query_vector, top_k=top_k * 2)  # Fetch more to ensure uniqueness
 
-        # Prepare response with web-accessible image paths and distances
-        similar_images = []
+        # Filter for unique results
+        unique_results = []
+        unique_indices = set()
         for result, distance in zip(results, distances):
+            if result not in unique_indices:
+                unique_indices.add(result)
+                unique_results.append((result, distance))
+                if len(unique_results) == top_k:
+                    break
+
+        # Prepare response with image paths and distances
+        similar_images = []
+        for result, distance in unique_results:
             relative_path = os.path.relpath(dataset.X[result], "images")  # Get relative path
             image_path = f"{BASE_URL}/images/{relative_path.replace(os.sep, '/')}"  # Construct absolute URL
             similar_images.append({"image_path": image_path, "distance": distance})
-
+        print(similar_images)
         return {"results": similar_images}
+
     except Exception as e:
         print(f"Error occurred: {str(e)}")  # Log detailed error to console
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
-
-
