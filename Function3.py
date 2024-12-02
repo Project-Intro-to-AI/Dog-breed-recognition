@@ -1,10 +1,10 @@
 import torch
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
-# import function2
 import os
+import csv
+import numpy as np
 
-# Load model và processor một lần
 model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -27,7 +27,9 @@ def embed_images_with_ids(image_paths, ids, batch_size=64):
 
         # Kiểm tra sự tồn tại của file ảnh
         images = []
+        print(batch_paths[0])
         for image_path in batch_paths:
+            
             if not os.path.exists(image_path):
                 print(f"Error: Image file '{image_path}' does not exist.")
                 # Có thể bỏ qua ảnh lỗi hoặc dừng chương trình tùy theo yêu cầu
@@ -61,10 +63,6 @@ def embed_images_with_ids(image_paths, ids, batch_size=64):
     return embeddings_with_ids
 
 
-
-import csv
-import numpy as np
-
 def save_embeddings_to_csv(file_path: str, embeddings_with_ids):
     """
     Lưu danh sách embeddings và IDs vào file CSV.
@@ -77,7 +75,6 @@ def save_embeddings_to_csv(file_path: str, embeddings_with_ids):
             row = [int(img_id)] + embedding.cpu().numpy().tolist()
             writer.writerow(row)
     print(f"Embeddings saved to {file_path}")
-
 
 
 def load_embeddings_from_csv(file_path: str):
@@ -132,27 +129,3 @@ def main(image_paths, ids, csv_file="embeddings.csv"):
     return embeddings_with_ids
 
 
-# # Example usage
-# path = "images/Images"
-# dataset = function2.DogDataset(path, one_hot=0)
-# image_paths = dataset.X
-# ids = dataset.y
-
-# embeddings_with_ids = embed_images_with_ids(image_paths, ids)
-# for img_id, embedding in embeddings_with_ids:
-#     print(f"ID: {img_id}, Embedding: {embedding}")
-
-
-# if __name__ == "__main__":
-#     image_paths = ["image1.jpg", "image2.jpg", "image3.jpg"]  # Thay bằng đường dẫn ảnh thực tế
-#     ids = [1, 2, 3]
-#     batch_size = 64
-#     model = ...  # Khởi tạo model của bạn
-#     processor = ...  # Khởi tạo processor
-#     device = "cuda" if torch.cuda.is_available() else "cpu"
-    
-#     embeddings_with_ids = main(image_paths, ids, batch_size, model, processor, device)
-#     print(f"Embeddings loaded or created: {len(embeddings_with_ids)}")
-# image_paths = dataset.X  # List of image file paths
-# ids = dataset.y
-# embeddings_with_ids = main(image_paths, ids, csv_file="embeddings.csv")

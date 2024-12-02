@@ -11,7 +11,11 @@ import function4  # Function to add embeddings to database
 import Function5  # Function to retrieve vectors from database
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
+
+import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
+
 
 # Initialize FastAPI app and mount static files
 app = FastAPI()
@@ -139,7 +143,6 @@ BASE_URL = "http://127.0.0.1:8000"  # Base URL of your server
 #         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 
-# [{'image_path': 'http://127.0.0.1:8000/images/Images/n02085620-Chihuahua/n02085620_5093.jpg', 'distance': 46.452884674072266}, {'image_path': 'http://127.0.0.1:8000/images/Images/n02085620-Chihuahua/n02085620_326.jpg', 'distance': 53.2888298034668}, {'image_path': 'http://127.0.0.1:8000/images/Images/n02085620-Chihuahua/n02085620_1152.jpg', 'distance': 53.431243896484375}, {'image_path': 'http://127.0.0.1:8000/images/Images/n02085620-Chihuahua/n02085620_5093.jpg', 'distance': 54.250972747802734}, {'image_path': 'http://127.0.0.1:8000/images/Images/n02085620-Chihuahua/n02085620_5093.jpg', 'distance': 54.29110336303711}]
 @app.post("/search/")
 async def search_image(file: UploadFile = File(...), top_k: int = 5):
     """
@@ -171,13 +174,22 @@ async def search_image(file: UploadFile = File(...), top_k: int = 5):
                 if len(unique_results) == top_k:
                     break
 
-        # Prepare response with image paths and distances
+        # Prepare response with image paths, distances, and breed names
         similar_images = []
         for result, distance in unique_results:
             relative_path = os.path.relpath(dataset.X[result], "images")  # Get relative path
             image_path = f"{BASE_URL}/images/{relative_path.replace(os.sep, '/')}"  # Construct absolute URL
-            similar_images.append({"image_path": image_path, "distance": distance})
-        print(similar_images)
+            
+            # Map class ID to breed name using dataset.class_names
+            class_id = dataset.y[result].item()  # Get class ID for the image
+            breed_name = dataset.class_names[class_id] if class_id < len(dataset.class_names) else "Unknown"
+
+            similar_images.append({
+                "image_path": image_path,
+                "distance": distance,
+                "breed_name": breed_name
+            })
+
         return {"results": similar_images}
 
     except Exception as e:

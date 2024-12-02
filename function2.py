@@ -26,7 +26,6 @@ class DogDataset(Dataset):
         self.y = torch.tensor(self.y,dtype= torch.int64) #CrossEntropyLoss require labels in type long
     def __len__(self):
         return len(self.X)
-
     def __getitem__(self, index):
         return [self.X[index],self.y[index]]
     def get_splits(self, test_ratio=0.1, eval_ratio=0.2):

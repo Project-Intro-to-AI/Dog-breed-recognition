@@ -69,10 +69,15 @@
 
                     const img = document.createElement("img");
                     img.src = result.image_path; // Image path from the API
+
+                    
+
+
                     img.alt = 'Similarity Score: ${result.distance}';
 
                     const breedName = document.createElement("p");
                     breedName.textContent = 'Breed: ${result.breed_name || "Unknown"}'; // Breed name from API
+
                     breedName.classList.add("breed-name");
 
                     resultContainer.appendChild(img);
