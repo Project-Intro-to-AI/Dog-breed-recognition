@@ -4,49 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dog Breed Identification</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background-color: #f9f9f9;
-        }
-        .container {
-            max-width: 800px;
-            margin: 20px;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        .upload-section {
-            margin: 20px 0;
-        }
-        .upload-section input[type="file"] {
-            margin-top: 10px;
-        }
-        .results {
-            margin-top: 30px;
-        }
-        .related-images {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        .related-images img {
-            max-width: 150px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-        }
-    </style>
+    <link rel="stylesheet" href="styles_page3.css">
 </head>
 <body>
+    <div class="picture-background"></div> <!-- Hình nền từ styles_page3.css -->
     <div class="container">
         <div class="upload-section">
             <h1>Upload a Dog Image</h1>
@@ -62,7 +23,7 @@
     </div>
 
     <script>
-        // Đường dẫn API
+        // API endpoint
         const API_URL = "http://127.0.0.1:8000/search/";
 
         const uploadButton = document.getElementById("submitBtn");
@@ -83,7 +44,7 @@
             formData.append("file", file);
 
             try {
-                // Gửi ảnh lên backend
+                // Upload the image to the backend
                 const response = await fetch(API_URL, {
                     method: "POST",
                     body: formData,
@@ -97,16 +58,26 @@
                 console.log("Response from API:", data);
                 const results = data.results;
 
-                // Xóa kết quả trước đó
+                // Clear previous results
                 relatedImagesContainer.innerHTML = "";
                 resultsHeader.style.display = "block";
 
-                // Hiển thị ảnh tương tự
+                // Display similar images with breed names
                 results.forEach((result) => {
+                    const resultContainer = document.createElement("div");
+                    resultContainer.classList.add("result-item");
+
                     const img = document.createElement("img");
-                    img.src = result.image_path; // Đường dẫn ảnh từ API
+                    img.src = result.image_path; // Image path from the API
                     img.alt = `Similarity Score: ${result.distance}`;
-                    relatedImagesContainer.appendChild(img);
+
+                    const breedName = document.createElemenAt("p");
+                    breedName.textContent = `Breed: ${result.breed_name || "Unknown"}`; // Breed name from API
+                    breedName.classList.add("breed-name");
+
+                    resultContainer.appendChild(img);
+                    resultContainer.appendChild(breedName);
+                    relatedImagesContainer.appendChild(resultContainer);
                 });
 
                 uploadStatus.textContent = "Search complete!";
