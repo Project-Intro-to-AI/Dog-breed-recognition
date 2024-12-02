@@ -11,7 +11,7 @@ import function4  # Function to add embeddings to database
 import Function5  # Function to retrieve vectors from database
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
-
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 # Initialize FastAPI app and mount static files
 app = FastAPI()
@@ -47,7 +47,7 @@ def call_api():
 # Preprocess: Download dataset, initialize CLIP model, and prepare embeddings
 url = "http://vision.stanford.edu/aditya86/ImageNetDogs/images.tar"
 output_file = "images.tar"
-function1.main()  # Download dataset
+# function1.main()  # Download dataset
 model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -55,15 +55,15 @@ model.to(device)
 
 # Load dataset and embeddings
 path = r"images\Images"
-dataset = function2.DogDataset(path, one_hot=0)
+dataset = function2.DogDataset(path)
 image_paths = dataset.X  # List of image file paths
 # print(image_paths[1])
 ids = dataset.y  # List of corresponding IDs
 embeddings_with_ids = Function3.main(image_paths, ids)
 
 # dimension = 512  # Get embedding dimension
-index = function4.initialize_index(512, search_method = "flat", use_gpu = False)
-index = function4.add_embeddings_to_index(index, embeddings_with_ids,index_file = "faiss_index.bin", use_gpu = False)
+index = function4.initialize_index(512, search_method = "flat")
+index = function4.add_embeddings_to_index(index, embeddings_with_ids,index_file = "faiss_index.bin")
 print("Number of vectors in FAISS index:", index.ntotal)
 
 
