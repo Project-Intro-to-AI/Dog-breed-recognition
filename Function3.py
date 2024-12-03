@@ -53,12 +53,14 @@ def embed_images_with_ids(image_paths, ids, batch_size=64):
         # Generate embeddings
         with torch.no_grad():
             embeddings = model.get_image_features(**inputs).cpu()
+            # embeddings /= embeddingsnorm.(dim=-1, keepdim=True)
         del inputs
         torch.cuda.empty_cache() # Làm rỗng cache sau mỗi batch
 
         # Add embeddings with corresponding IDs to the result list
         for img_id, embedding in zip(batch_ids, embeddings):
             embeddings_with_ids.append((img_id, embedding))
+        break
 
     return embeddings_with_ids
 

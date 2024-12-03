@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="styles_page3.css">
 </head>
 <body>
-    <div class="picture-background"></div> <!-- Hình nền từ styles_page3.css -->
+    <div class="picture-background"></div> <!-- Background image from styles_page3.css -->
     <div class="container">
         <div class="upload-section">
             <h1>Upload a Dog Image</h1>
@@ -69,14 +69,10 @@
 
                     const img = document.createElement("img");
                     img.src = result.image_path; // Image path from the API
-
-                    
-
-
-                    img.alt = 'Similarity Score: ${result.distance}';
+                    img.alt = `Similarity Score: ${result.distance}`; // Corrected template literal
 
                     const breedName = document.createElement("p");
-                    breedName.textContent = 'Breed: ${result.breed_name || "Unknown"}'; // Breed name from API
+                    breedName.textContent = `Breed: ${result.breed_name || "Unknown"}`; // Corrected template literal
 
                     breedName.classList.add("breed-name");
 
