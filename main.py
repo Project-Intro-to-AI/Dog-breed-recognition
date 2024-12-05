@@ -5,18 +5,19 @@ from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
 import os
 import function1  # Function to download data set
-import function2  # Function to load data set
+from function2 import DogDataset  # Function to load data set
 import Function3  # Function to embed image
 import function4  # Function to add embeddings to database
 import Function5  # Function to retrieve vectors from database
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse
 from collections import Counter
+from utils import BATCH, IMG_PATH, MODEL_NAME, BASE_URL, cosine
+from fastapi.middleware.cors import CORSMiddleware
+
 
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-
-
 
 # Initialize FastAPI app and mount static files
 app = FastAPI()
@@ -34,7 +35,6 @@ def read_root():
         </body>
     </html>
     """
-from fastapi.middleware.cors import CORSMiddleware
 
 app.add_middleware(
     CORSMiddleware,
@@ -50,42 +50,29 @@ def call_api():
     # Here, you would call the external API
     return {"message": "API called successfully!"}
 # Preprocess: Download dataset, initialize CLIP model, and prepare embeddings
-url = "http://vision.stanford.edu/aditya86/ImageNetDogs/images.tar"
-output_file = "images.tar"
-# function1.main()  # Download dataset
-model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32")
-processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32")
+function1.main()
+# load model
+model = CLIPModel.from_pretrained(MODEL_NAME)
+processor = CLIPProcessor.from_pretrained(MODEL_NAME)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 model.to(device)
-
 # Load dataset and embeddings
-path = r"images\Images"
-dataset = function2.DogDataset(path)
-image_paths = dataset.X  # List of image file paths
-# print(image_paths[1])
-ids = dataset.y  # List of corresponding IDs
+dataset = DogDataset(IMG_PATH)
+image_paths = dataset.X 
+ids = dataset.y 
 embeddings_with_ids = Function3.main(image_paths, ids)
+# print (embeddings_with_ids)
+# exit(0)
 
-def cosine(a,b):
-    a= np.array(a)
-    b= np.array(b)
-    # print(a.shape)
-    # print(b.shape)
-    return np.dot(a,b)/np.linalg.norm(a)/np.linalg.norm(b) 
-
-print(dataset.X[embeddings_with_ids[0][0]],embeddings_with_ids[0][1])
-print(f"cosine similarity {cosine(embeddings_with_ids[0][1], embeddings_with_ids[4636][1])}")
-
+# print(dataset.X[embeddings_with_ids[0][0]],embeddings_with_ids[0][1])
+# print(f"cosine similarity {cosine(embeddings_with_ids[0][1], embeddings_with_ids[4636][1])}")
+# exit(0)
 def KNN(feat,top_k=5):
-    global cnt
-    # print(f"hjgfhjdgshjfdbhjksdzfbhasdfvbhdsvhjhsdfgf{embeddings_with_ids[0][1]}")
     similarities = [(i, cosine(embeddings_with_ids[i][1],feat)) for i in range(len(embeddings_with_ids))]
     similarities = sorted(similarities,key=lambda x:x[1], reverse=True)[:top_k]
     top_labels = [dataset.y[x[0]] for x in similarities]
     most_common_label,_ = Counter(top_labels).most_common(1)[0]
     return most_common_label, similarities
-BASE_URL = "http://127.0.0.1:8000"  # Base URL of your server
-
 
 @app.post("/search/")
 async def search_image(file: UploadFile = File(...), top_k: int = 5):
@@ -114,7 +101,7 @@ async def search_image(file: UploadFile = File(...), top_k: int = 5):
         similar_images = []
         for result, distance in super_result:
             relative_path = os.path.relpath(dataset.X[result], "images")  
-            print(relative_path)# Get relative path
+            # print(relative_path)# Get relative path
             image_path = f"{BASE_URL}/images/{relative_path.replace(os.sep, '/')}"  # Construct absolute URL
             
             # Map class ID to breed name using dataset.class_names
