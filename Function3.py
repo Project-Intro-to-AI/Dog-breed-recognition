@@ -22,8 +22,9 @@ def embed_images_with_ids(image_paths, ids, batch_size=64):
 
     # Process images in batches to save memory
     for i in range(0, len(image_paths), batch_size):
-        batch_paths = image_paths[i:i+batch_size]
-        batch_ids = ids[i:i+batch_size]
+        batch_paths = image_paths[i:min(i+batch_size, len(image_paths))]
+        batch_ids = ids[i:min(i+batch_size, len(image_paths))]
+        print(f"batch {i/batch_size}: {i}-{min(i+batch_size, len(image_paths))}")
 
         # Kiểm tra sự tồn tại của file ảnh
         images = []
@@ -32,16 +33,11 @@ def embed_images_with_ids(image_paths, ids, batch_size=64):
             
             if not os.path.exists(image_path):
                 print(f"Error: Image file '{image_path}' does not exist.")
-                # Có thể bỏ qua ảnh lỗi hoặc dừng chương trình tùy theo yêu cầu
-                # continue  # Bỏ qua ảnh lỗi và tiếp tục
                 return embeddings_with_ids  # Dừng chương trình nếu có ảnh không tồn tại
             try:
                 images.append(Image.open(image_path).convert("RGB")) # Thêm convert("RGB") để tránh lỗi về mode ảnh
             except Exception as e:
                 print(f"Error loading image '{image_path}': {e}")
-                # Có thể bỏ qua ảnh lỗi hoặc dừng chương trình tùy theo yêu cầu
-                # continue  # Bỏ qua ảnh lỗi và tiếp tục
-                # return embeddings_with_ids  # Dừng chương trình nếu có ảnh lỗi
         if not images:
             print(f"Warning: No images loaded in this batch. Continuing...")
             continue
@@ -53,12 +49,15 @@ def embed_images_with_ids(image_paths, ids, batch_size=64):
         # Generate embeddings
         with torch.no_grad():
             embeddings = model.get_image_features(**inputs).cpu()
+            # embeddings /= embeddingsnorm.(dim=-1, keepdim=True)
         del inputs
         torch.cuda.empty_cache() # Làm rỗng cache sau mỗi batch
 
         # Add embeddings with corresponding IDs to the result list
         for img_id, embedding in zip(batch_ids, embeddings):
             embeddings_with_ids.append((img_id, embedding))
+        break
+    print(embeddings_with_ids)
 
     return embeddings_with_ids
 
