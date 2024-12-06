@@ -127,4 +127,3 @@ def main(image_paths, ids, csv_file="embeddings.csv"):
     print("Hoàn thành!")
     return embeddings_with_ids
 
-
